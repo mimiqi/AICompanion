@@ -1,0 +1,48 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.egg-info/
+.venv/
+.conda/
+
+# Editors
+.idea/
+.vscode/
+
+# Sensitive data
+mcp_servers/mail_server/mail_config.json
+**/.env
+**/api_keys.py
+
+# Runtime data
+data/
+!data/.gitkeep
+
+# Logs
+*.log
+logs/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Cursor
+.cursorrules
+.cursor/
+
+# OLV-specific (mirrors Open-LLM-VTuber/.gitignore for safety)
+Open-LLM-VTuber/conf.yaml
+Open-LLM-VTuber/mcp_servers.json
+Open-LLM-VTuber/cache/
+Open-LLM-VTuber/chat_history/
+Open-LLM-VTuber/logs/
+Open-LLM-VTuber/models/
+Open-LLM-VTuber/.venv/
+Open-LLM-VTuber/conf.yaml.backup
+
+# Frontend build artifacts
+frontend_overlay/upstream/node_modules/
+frontend_overlay/upstream/dist/
+frontend_overlay/upstream/out/
+frontend_overlay/upstream/release/

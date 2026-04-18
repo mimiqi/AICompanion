@@ -1,0 +1,14 @@
+{
+  "imap_host": "imap.gmail.com",
+  "imap_port": 993,
+  "use_ssl": true,
+  "username": "your-email@example.com",
+  "password": "your-app-specific-password",
+  "mailbox": "INBOX",
+  "fetch_limit": 20,
+  "poll_interval_seconds": 90,
+  "olv_websocket_url": "ws://127.0.0.1:12393/client-ws",
+  "state_path": "../data/mail_state.json",
+  "proactive_enabled": true,
+  "senders_whitelist": []
+}
