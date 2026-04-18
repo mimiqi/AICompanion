@@ -77,8 +77,10 @@ copy mail_config.example.json mail_config.json   # 启用邮件功能时
 
 ### 5. 启动外部服务
 
+> GPT-SoVITS-V2 的部署、训练、API 启动与对接细节见专门文档：[docs/sovits_setup.md](docs/sovits_setup.md)
+
 ```powershell
-# 终端 1：GPT-SoVITS-V2 API 服务（需先按 SoVITS 文档训练好模型）
+# 终端 1：GPT-SoVITS-V2 API 服务（部署/训练步骤见 docs/sovits_setup.md）
 cd <你的GPT-SoVITS路径>
 python api_v2.py
 
@@ -101,6 +103,12 @@ uv run run_server.py
 - [mcp_servers/mail_server/README.md](mcp_servers/mail_server/README.md)
 - [frontend_overlay/README.md](frontend_overlay/README.md)
 - [characters_v2/README.md](characters_v2/README.md)
+
+## 专题文档
+
+- [GPT-SoVITS-V2 部署 / 训练 / 对接指南](docs/sovits_setup.md)
+- [桌宠透明窗口 / 待机降帧 / 启动顺序 Checklist](docs/polish_checklist.md)
+- [AI 完成内容（按时间归档的会话执行记录）](docs/AI完成内容/)
 
 ## 与上游 OLV 同步
 
