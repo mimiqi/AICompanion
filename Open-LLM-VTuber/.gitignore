@@ -4,6 +4,8 @@ conf.yaml
 # ignore non-default background images
 /backgrounds/*
 !/backgrounds/README.md
+# 占位图: 前端 bundle 硬编码默认请求此文件名,缺则 404,故纳入版本控制
+!/backgrounds/ceiling-window-room-night.jpeg
 
 # ignore non-default live2d models
 /live2d-models/*

@@ -46,3 +46,6 @@ frontend_overlay/upstream/node_modules/
 frontend_overlay/upstream/dist/
 frontend_overlay/upstream/out/
 frontend_overlay/upstream/release/
+
+# SoVITS 合成测试临时产物(任何位置的 test*.wav 都排除)
+**/test*.wav

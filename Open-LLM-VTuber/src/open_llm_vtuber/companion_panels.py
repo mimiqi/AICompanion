@@ -22,11 +22,12 @@ from loguru import logger
 from pydantic import BaseModel
 
 
-_PROJECT_ROOT = Path(__file__).resolve().parents[3]
-_MCP_SERVERS_PATH = _PROJECT_ROOT.parent / "mcp_servers"
+_OLV_ROOT = Path(__file__).resolve().parents[2]
+_REPO_ROOT = _OLV_ROOT.parent
+_MCP_SERVERS_PATH = _REPO_ROOT / "mcp_servers"
 
-if str(_PROJECT_ROOT.parent) not in sys.path:
-    sys.path.insert(0, str(_PROJECT_ROOT.parent))
+if str(_REPO_ROOT) not in sys.path:
+    sys.path.insert(0, str(_REPO_ROOT))
 
 
 def _load_todo_db():
