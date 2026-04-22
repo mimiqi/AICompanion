@@ -120,6 +120,23 @@ function WebSocketHandler({ children }: { children: React.ReactNode }) {
           message.model_info.url = modelUrl;
         }
 
+        // Skin system: also prefix staticUrl and sprites with baseUrl so that
+        // relative paths work in Electron dev mode (page served from Vite dev server,
+        // not from OLV at :12393).
+        if (message.model_info?.staticUrl
+            && !message.model_info.staticUrl.startsWith("http")) {
+          // eslint-disable-next-line no-param-reassign
+          message.model_info.staticUrl = baseUrl + message.model_info.staticUrl;
+        }
+        if (message.model_info?.sprites) {
+          Object.entries(message.model_info.sprites).forEach(([key, val]) => {
+            if (val && !String(val).startsWith("http")) {
+              // eslint-disable-next-line no-param-reassign
+              message.model_info.sprites[key] = baseUrl + val;
+            }
+          });
+        }
+
         setAiState('idle');
         break;
       case 'full-text':

@@ -29,6 +29,16 @@ export interface TapMotionMap {
 }
 
 /**
+ * Skin rendering mode
+ * - 'live2d':       Use Cubism .moc3 model via PIXI live2d (full lipsync + motion)
+ * - 'static_multi': One static PNG per emotion index (no lipsync but expressions switchable)
+ * - 'static_single':One static PNG, no expression switching at all (lowest cost)
+ *
+ * When omitted, defaults to 'live2d' for backward compatibility.
+ */
+export type SkinType = 'live2d' | 'static_multi' | 'static_single';
+
+/**
  * Live2D model information interface
  * @interface ModelInfo
  */
@@ -71,6 +81,21 @@ export interface ModelInfo {
 
   /** Initial scale */
   initialScale?: number;
+
+  // ===== Skin system (all optional, default = 'live2d') =====
+
+  /** Rendering mode for this character. Omit = 'live2d' */
+  skinType?: SkinType;
+
+  /** Single static image URL. Used in 'static_single' and as fallback in 'static_multi' */
+  staticUrl?: string;
+
+  /**
+   * Static images per emotion index, e.g. { "0": "/path/neutral.png", "1": "/path/joy.png" }.
+   * Key is the integer emotion index from emotionMap, stored as string for JSON compatibility.
+   * Used only in 'static_multi' mode.
+   */
+  sprites?: Record<string, string>;
 }
 
 /**
@@ -82,6 +107,10 @@ interface Live2DConfigState {
   setModelInfo: (info: ModelInfo | undefined) => void;
   isLoading: boolean;
   setIsLoading: (loading: boolean) => void;
+  /** Current expression index for static_multi skin (ignored by Live2D mode) */
+  staticExpression: number;
+  /** Setter used by use-audio-task to switch sprite when LLM emits an emo tag */
+  setStaticExpression: (index: number) => void;
 }
 
 /**
@@ -108,6 +137,7 @@ export function Live2DConfigProvider({ children }: { children: React.ReactNode }
   const { confUid } = useConfig();
 
   const [isLoading, setIsLoading] = useState(DEFAULT_CONFIG.isLoading);
+  const [staticExpression, setStaticExpression] = useState<number>(0);
 
   const [modelInfo, setModelInfoState] = useLocalStorage<ModelInfo | undefined>(
     "modelInfo",
@@ -120,17 +150,38 @@ export function Live2DConfigProvider({ children }: { children: React.ReactNode }
   // const [modelInfo, setModelInfoState] = useState<ModelInfo | undefined>(DEFAULT_CONFIG.modelInfo);
 
   const setModelInfo = (info: ModelInfo | undefined) => {
-    if (!info?.url) {
+    if (!info) {
       setModelInfoState(undefined);
       return;
     }
 
-    // Always use the scale defined in the incoming info object (from config)
+    // Skin system: default to 'live2d' for backward compatibility.
+    const skinType = info.skinType ?? 'live2d';
+
+    // Validate per skin type:
+    //   - 'live2d':       requires .url to .model3.json
+    //   - 'static_single':requires staticUrl
+    //   - 'static_multi': requires either staticUrl (fallback) or at least 1 sprites entry
+    const validLive2d = skinType === 'live2d' && Boolean(info.url);
+    const validStaticSingle = skinType === 'static_single' && Boolean(info.staticUrl);
+    const validStaticMulti = skinType === 'static_multi'
+      && (Boolean(info.staticUrl) || (info.sprites && Object.keys(info.sprites).length > 0));
+
+    if (!validLive2d && !validStaticSingle && !validStaticMulti) {
+      console.warn(`[Live2DConfig] Invalid model info for skinType=${skinType}, clearing.`, info);
+      setModelInfoState(undefined);
+      return;
+    }
+
+    // kScale * 2 is a Live2D-specific quirk; harmless for static modes (StaticAvatar ignores kScale).
     const finalScale = Number(info.kScale || 0.5) * 2;
-    console.log("Setting model info with default scale:", finalScale);
+    console.log(`Setting model info: skinType=${skinType}, scale=${finalScale}`);
 
     setModelInfoState({
       ...info,
+      skinType,
+      staticUrl: info.staticUrl ?? '',
+      sprites: info.sprites ?? {},
       kScale: finalScale,
       pointerInteractive:
         "pointerInteractive" in info
@@ -149,8 +200,10 @@ export function Live2DConfigProvider({ children }: { children: React.ReactNode }
       setModelInfo,
       isLoading,
       setIsLoading,
+      staticExpression,
+      setStaticExpression,
     }),
-    [modelInfo, isLoading, setIsLoading],
+    [modelInfo, isLoading, setIsLoading, staticExpression],
   );
 
   return (

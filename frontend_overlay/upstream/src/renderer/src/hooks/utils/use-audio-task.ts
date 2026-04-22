@@ -12,6 +12,7 @@ import { toaster } from '@/components/ui/toaster';
 import { useWebSocket } from '@/context/websocket-context';
 import { DisplayText } from '@/services/websocket-service';
 import { useLive2DExpression } from '@/hooks/canvas/use-live2d-expression';
+import { useLive2DConfig } from '@/context/live2d-config-context';
 import * as LAppDefine from '../../../WebSDK/src/lappdefine';
 
 // Simple type alias for Live2D model
@@ -37,6 +38,7 @@ export const useAudioTask = () => {
   const { appendResponse, appendAIMessage } = useChatHistory();
   const { sendMessage } = useWebSocket();
   const { setExpression } = useLive2DExpression();
+  const { modelInfo, setStaticExpression } = useLive2DConfig();
 
   // State refs to avoid stale closures
   const stateRef = useRef({
@@ -44,6 +46,8 @@ export const useAudioTask = () => {
     setSubtitleText,
     appendResponse,
     appendAIMessage,
+    modelInfo,
+    setStaticExpression,
   });
 
   // Note: currentAudioRef and currentModelRef are now managed by the global audioManager
@@ -53,6 +57,8 @@ export const useAudioTask = () => {
     setSubtitleText,
     appendResponse,
     appendAIMessage,
+    modelInfo,
+    setStaticExpression,
   };
 
   /**
@@ -99,6 +105,65 @@ export const useAudioTask = () => {
     }
 
     try {
+      // Skin system: Live2D mode goes through the original full pipeline below.
+      // Static modes (single PNG / multi PNG) skip everything Live2D-related and
+      // just play audio + switch the static sprite.
+      const skinType = stateRef.current.modelInfo?.skinType ?? 'live2d';
+
+      if (skinType !== 'live2d') {
+        // Update sprite if 'static_multi' and an emo index was provided.
+        if (skinType === 'static_multi'
+            && expressions
+            && expressions[0] !== undefined) {
+          const idx = Number(expressions[0]);
+          if (!Number.isNaN(idx)) {
+            stateRef.current.setStaticExpression(idx);
+          }
+        }
+
+        if (!audioBase64) {
+          resolve();
+          return;
+        }
+
+        const audioDataUrl = `data:audio/wav;base64,${audioBase64}`;
+        const audio = new Audio(audioDataUrl);
+        // Pass null model: audioManager handles null gracefully (no lip sync).
+        audioManager.setCurrentAudio(audio, null);
+        let isFinished = false;
+        const cleanup = () => {
+          audioManager.clearCurrentAudio(audio);
+          if (!isFinished) {
+            isFinished = true;
+            resolve();
+          }
+        };
+
+        audio.addEventListener('canplaythrough', () => {
+          if (stateRef.current.aiState === 'interrupted' || !audioManager.hasCurrentAudio()) {
+            console.warn('[Static] Audio playback cancelled due to interruption.');
+            cleanup();
+            return;
+          }
+          audio.play().catch((err) => {
+            console.error('[Static] Audio play error:', err);
+            cleanup();
+          });
+        });
+        audio.addEventListener('ended', () => {
+          console.log('[Static] Audio playback completed.');
+          cleanup();
+        });
+        audio.addEventListener('error', (error) => {
+          console.error('[Static] Audio playback error:', error);
+          cleanup();
+        });
+        audio.load();
+        return;
+      }
+
+      // ===== Live2D mode (original code path, unchanged below) =====
+
       // Process audio if available
       if (audioBase64) {
         const audioDataUrl = `data:audio/wav;base64,${audioBase64}`;

@@ -17,6 +17,8 @@ import { CharacterConfigProvider } from "./context/character-config-context";
 import { Toaster } from "./components/ui/toaster";
 import { VADProvider } from "./context/vad-context";
 import { Live2D } from "./components/canvas/live2d";
+import { StaticAvatar } from "./components/canvas/static-avatar";
+import { useLive2DConfig } from "./context/live2d-config-context";
 import TitleBar from "./components/electron/title-bar";
 import { InputSubtitle } from "./components/electron/input-subtitle";
 import { ProactiveSpeakProvider } from "./context/proactive-speak-context";
@@ -34,8 +36,11 @@ function AppContent(): JSX.Element {
   const [showSidebar, setShowSidebar] = useState(true);
   const [isFooterCollapsed, setIsFooterCollapsed] = useState(false);
   const { mode } = useMode();
+  const { modelInfo } = useLive2DConfig();
   const isElectron = window.api !== undefined;
   const live2dContainerRef = useRef<HTMLDivElement>(null);
+  // Skin system: default to 'live2d' for backward compatibility.
+  const skinType = modelInfo?.skinType ?? "live2d";
 
   useEffect(() => {
     const handleResize = () => {
@@ -101,7 +106,7 @@ function AppContent(): JSX.Element {
           ? getResponsiveLive2DWindowStyle(showSidebar)
           : live2dPetStyle)}
       >
-        <Live2D />
+        {skinType === "live2d" ? <Live2D /> : <StaticAvatar />}
       </Box>
 
       {/* Conditional Rendering of Window UI */}

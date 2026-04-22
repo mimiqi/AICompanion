@@ -1,7 +1,7 @@
 [
     {
         "name": "mao_pro",
-        "description": "",
+        "description": "OLV 自带的默认 Live2D 模型 (Cubism mao_pro 模板)",
         "url": "/live2d-models/mao_pro/runtime/mao_pro.model3.json",
         "kScale": 0.5,
         "initialXshift": 0,
@@ -25,6 +25,51 @@
             "HitAreaBody": {
                 "": 1
             }
+        }
+    },
+
+    {
+        "name": "littorio_static_single",
+        "description": "[模板示例] 利托里奥静态单图皮肤 - 一张立绘,无表情切换,最低成本。conf.yaml 的 live2d_model_name 指向此 name 即生效。三种 skinType 可选: live2d / static_multi / static_single (省略默认 live2d,完全向后兼容)",
+        "skinType": "static_single",
+        "url": "",
+        "staticUrl": "/avatars/AzurLane_Littorio.png",
+        "kScale": 0.5,
+        "initialXshift": 0,
+        "initialYshift": 0,
+        "kXOffset": 0,
+        "emotionMap": {}
+    },
+
+    {
+        "name": "littorio_static_multi",
+        "description": "示例: 利托里奥静态多表情皮肤 (8 张立绘按 emomap index 切换,无 lip sync)",
+        "skinType": "static_multi",
+        "url": "",
+        "staticUrl": "/characters/littorio/neutral.png",
+        "sprites": {
+            "0": "/characters/littorio/neutral.png",
+            "1": "/characters/littorio/joy.png",
+            "2": "/characters/littorio/smirk.png",
+            "3": "/characters/littorio/anger.png",
+            "4": "/characters/littorio/sadness.png",
+            "5": "/characters/littorio/surprise.png",
+            "6": "/characters/littorio/disgust.png",
+            "7": "/characters/littorio/fear.png"
+        },
+        "kScale": 0.5,
+        "initialXshift": 0,
+        "initialYshift": 0,
+        "kXOffset": 0,
+        "emotionMap": {
+            "neutral": 0,
+            "joy": 1,
+            "smirk": 2,
+            "anger": 3,
+            "sadness": 4,
+            "surprise": 5,
+            "disgust": 6,
+            "fear": 7
         }
     }
 ]
