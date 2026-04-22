@@ -47,5 +47,13 @@ frontend_overlay/upstream/dist/
 frontend_overlay/upstream/out/
 frontend_overlay/upstream/release/
 
+# OLV compiled frontend bundle (auto-generated, changes on every build)
+# Only index.html is version-controlled to track which bundle is active
+Open-LLM-VTuber/frontend/assets/main-*.js
+Open-LLM-VTuber/frontend/assets/main-*.css
+
+# Stray binary assets at repo root (should not be committed here)
+*.webp
+
 # SoVITS 合成测试临时产物(任何位置的 test*.wav 都排除)
 **/test*.wav
